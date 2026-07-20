@@ -5,8 +5,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import recruitment.dev.applicationservice.dto.ApplicationDto;
+import recruitment.dev.applicationservice.dto.CreateApplicationRequest;
 import recruitment.dev.applicationservice.entities.Application;
 import recruitment.dev.applicationservice.entities.ApplicationStatus;
+import recruitment.dev.applicationservice.entities.ApplicationStep;
 import recruitment.dev.applicationservice.exception.ApplicationNotFoundException;
 import recruitment.dev.applicationservice.exception.DuplicateApplicationException;
 import recruitment.dev.applicationservice.mapper.ApplicationMapper;
@@ -23,18 +25,83 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationMapper applicationMapper;
 
     @Override
-    public ApplicationDto create(ApplicationDto dto) {
-        if (applicationRepository.existsByCandidateIdAndJobOfferId(dto.getCandidateId(), dto.getJobOfferId())) {
-            throw new DuplicateApplicationException(dto.getCandidateId(), dto.getJobOfferId());
+    public ApplicationDto create(CreateApplicationRequest dto) {
+
+        if(applicationRepository.existsByCandidateIdAndJobOfferId(
+                dto.getCandidateId(),
+                dto.getJobOfferId())) {
+
+            throw new DuplicateApplicationException(
+                    dto.getCandidateId(),
+                    dto.getJobOfferId()
+            );
         }
 
-        Application entity = applicationMapper.toEntity(dto);
-        entity.setStatus(ApplicationStatus.SUBMITTED);
+
+        Application entity = new Application();
+
+        entity.setCandidateId(dto.getCandidateId());
+
+        entity.setJobOfferId(dto.getJobOfferId());
+
+
+        entity.setStatus(ApplicationStatus.UNDER_REVIEW);
+
+
+        entity.setCurrentStep(
+                ApplicationStep.CREATED
+        );
+
+
         entity.setAppliedAt(LocalDateTime.now());
+
         entity.setUpdatedAt(LocalDateTime.now());
 
-        Application saved = applicationRepository.save(entity);
+
+        Application saved =
+                applicationRepository.save(entity);
+
+
         return applicationMapper.toDto(saved);
+    }
+
+    @Override
+    public ApplicationDto submit(Long id) {
+
+
+        Application application =
+                applicationRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ApplicationNotFoundException(id)
+                        );
+
+
+        if(application.getCv() == null){
+
+            throw new RuntimeException(
+                    "CV must be uploaded before submit"
+            );
+        }
+
+
+        application.setCurrentStep(
+                ApplicationStep.COMPLETED
+        );
+
+
+        application.setStatus(
+                ApplicationStatus.SUBMITTED
+        );
+
+
+        application.setUpdatedAt(
+                LocalDateTime.now()
+        );
+
+
+        return applicationMapper.toDto(
+                applicationRepository.save(application)
+        );
     }
 
     @Override

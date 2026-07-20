@@ -21,13 +21,22 @@ public class Application {
 
     private Long candidateId;
     private Long jobOfferId;
-    private Long cvId;
 
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;
 
+
+    @Enumerated(EnumType.STRING)
+    private ApplicationStep currentStep;
     private Double matchingScore;
 
     private LocalDateTime appliedAt;
     private LocalDateTime updatedAt;
+    @OneToOne(
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @JoinColumn(name = "cv_id")
+    private CV cv;
 }
