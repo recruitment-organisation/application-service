@@ -45,7 +45,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         entity.setJobOfferId(dto.getJobOfferId());
 
 
-        entity.setStatus(ApplicationStatus.UNDER_REVIEW);
+        entity.setStatus(ApplicationStatus.CV_REVISION_REQUIRED);
 
 
         entity.setCurrentStep(
@@ -158,5 +158,40 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new ApplicationNotFoundException(id);
         }
         applicationRepository.deleteById(id);
+    }
+
+    @Override
+    public ApplicationDto updateMatchingScore(Long id, Double matchingScore) {
+        Application entity = applicationRepository.findById(id)
+                .orElseThrow(() -> new ApplicationNotFoundException(id));
+
+        entity.setMatchingScore(matchingScore);
+        entity.setUpdatedAt(LocalDateTime.now());
+
+        Application updated = applicationRepository.save(entity);
+        return applicationMapper.toDto(updated);
+    }
+
+    @Override
+    public ApplicationDto updateStatus(Long id, String status) {
+
+        Application app = applicationRepository.findById(id)
+                .orElseThrow(() -> new ApplicationNotFoundException(id));
+
+        try {
+            ApplicationStatus applicationStatus =
+                    ApplicationStatus.valueOf(status.toUpperCase());
+
+            app.setStatus(applicationStatus);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid application status: " + status);
+        }
+
+        app.setUpdatedAt(LocalDateTime.now());
+
+        applicationRepository.save(app);
+
+        applicationMapper.toDto(app);
+        return  applicationMapper.toDto(app);
     }
 }

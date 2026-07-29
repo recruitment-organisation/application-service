@@ -1,6 +1,7 @@
 package recruitment.dev.applicationservice.security;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -34,7 +35,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(ar -> ar
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/candidate/create").permitAll()
+                        .requestMatchers(HttpMethod.GET ,"/internal/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH ,"/internal/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT ,"/internal/**").permitAll()
 
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/actuator/info").permitAll()

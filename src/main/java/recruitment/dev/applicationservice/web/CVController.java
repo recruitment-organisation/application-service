@@ -32,15 +32,15 @@ public class CVController {
 
 
     @PreAuthorize("hasRole('HR')")
-    @GetMapping("/get-by-id")
+    @GetMapping("/get/{id}")
 
-    public ResponseEntity<CVDto> findById(Long id){
+    public ResponseEntity<CVDto> findById(@PathVariable Long id){
         return ResponseEntity.ok(cvService.findById(id));
     }
 
     @PreAuthorize("hasRole('HR')")
-    @GetMapping("/download")
-    public ResponseEntity<Resource> downloadCV(@RequestParam Long id) {
+    @GetMapping("/download/{id}")
+    public ResponseEntity<Resource> downloadCV(@PathVariable Long id) {
         Resource file = cvService.download(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"cv.pdf\"")

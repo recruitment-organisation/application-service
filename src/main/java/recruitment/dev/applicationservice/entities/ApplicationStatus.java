@@ -2,10 +2,12 @@ package recruitment.dev.applicationservice.entities;
 
 public enum ApplicationStatus {
     SUBMITTED,
-    UNDER_REVIEW,
-    SHORTLISTED,
-    INTERVIEW_SCHEDULED,
-    INTERVIEW_COMPLETED,
-    ACCEPTED,
-    REJECTED
+    CV_REVISION_REQUIRED,
+    UNDER_AI_REVIEW,
+    HR_INTERVIEW,
+    TECHNICAL_INTERVIEW,
+    MANAGER_INTERVIEW,
+    REJECTED,
+    HIRED,
+    CLOSED
 }

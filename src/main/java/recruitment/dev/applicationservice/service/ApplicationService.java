@@ -16,4 +16,6 @@ public interface ApplicationService {
     Page<ApplicationDto> getByJobOfferId(Long jobOfferId, Pageable pageable);
     Page<ApplicationDto> getByStatus(ApplicationStatus status, Pageable pageable);
     void delete(Long id);
+    ApplicationDto updateMatchingScore(Long id, Double matchingScore);
+    ApplicationDto updateStatus(Long id, String status);
 }

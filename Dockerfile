@@ -1,13 +1,17 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jre
 
+WORKDIR /app
 
-##si en supp un conatiner , les donnees doivent etre supprimer , donc en va stocker les donners dans un fichier tmp par exemple
+COPY --chown=10001:10001 target/*.jar app.jar
 
-VOLUME /tmp
-##copy discovery-service-0.0.1-SNAPSHOT.jar dans app.jar puis
-COPY target/*.jar app.jar
+USER 10001:10001
 
-## executer aap.jar
-ENTRYPOINT ["java" ,"-jar" ,"app.jar"]
+EXPOSE 8097
 
-
+ENTRYPOINT [
+  "java",
+  "-XX:MaxRAMPercentage=75.0",
+  "-XX:+ExitOnOutOfMemoryError",
+  "-jar",
+  "/app/app.jar"
+]

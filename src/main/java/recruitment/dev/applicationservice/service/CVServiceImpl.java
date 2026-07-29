@@ -32,7 +32,8 @@ public class CVServiceImpl implements CVService {
 
     private final MinioService minioService;
 
-
+    private final CvTemplateValidationService
+            cvTemplateValidationService;
     @Override
     @Transactional
     public CVDto upload(Long applicationId, MultipartFile file) {
