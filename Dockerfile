@@ -8,10 +8,4 @@ USER 10001:10001
 
 EXPOSE 8097
 
-ENTRYPOINT [
-  "java",
-  "-XX:MaxRAMPercentage=75.0",
-  "-XX:+ExitOnOutOfMemoryError",
-  "-jar",
-  "/app/app.jar"
-]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-XX:+ExitOnOutOfMemoryError", "-jar", "/app/app.jar"]
