@@ -101,6 +101,18 @@ class ApplicationServiceImplTest {
     }
 
     @Test
+    void rejectsAnUnknownStatusWithoutPersistingChanges() {
+        Application application = new Application();
+        when(applicationRepository.findById(8L)).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() -> service.updateStatus(8L, "unknown-status"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Invalid application status: unknown-status");
+
+        verify(applicationRepository, never()).save(application);
+    }
+
+    @Test
     void reportsMissingApplicationOnReadAndDelete() {
         when(applicationRepository.findById(91L)).thenReturn(Optional.empty());
         when(applicationRepository.existsById(91L)).thenReturn(false);
