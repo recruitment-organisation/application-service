@@ -9,10 +9,13 @@ import recruitment.dev.applicationservice.entities.ApplicationStatus;
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
     Page<Application> findByCandidateId(Long candidateId, Pageable pageable);
+    Page<Application> findByCandidateKeycloakId(String candidateKeycloakId, Pageable pageable);
 
     Page<Application> findByJobOfferId(Long jobOfferId, Pageable pageable);
 
     Page<Application> findByStatus(ApplicationStatus status, Pageable pageable);
 
     boolean existsByCandidateIdAndJobOfferId(Long candidateId, Long jobOfferId);
+
+    long countByStatus(ApplicationStatus status);
 }

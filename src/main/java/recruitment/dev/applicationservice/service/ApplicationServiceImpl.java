@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import recruitment.dev.applicationservice.dto.ApplicationDto;
+import recruitment.dev.applicationservice.dto.ApplicationDashboardCounts;
 import recruitment.dev.applicationservice.dto.CreateApplicationRequest;
 import recruitment.dev.applicationservice.entities.Application;
 import recruitment.dev.applicationservice.entities.ApplicationStatus;
@@ -25,7 +26,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationMapper applicationMapper;
 
     @Override
+    @Deprecated
     public ApplicationDto create(CreateApplicationRequest dto) {
+        return create(dto, null);
+    }
+
+    @Override
+    public ApplicationDto create(CreateApplicationRequest dto, String candidateKeycloakId) {
 
         if(applicationRepository.existsByCandidateIdAndJobOfferId(
                 dto.getCandidateId(),
@@ -41,6 +48,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application entity = new Application();
 
         entity.setCandidateId(dto.getCandidateId());
+        entity.setCandidateKeycloakId(candidateKeycloakId);
 
         entity.setJobOfferId(dto.getJobOfferId());
 
@@ -140,6 +148,13 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<ApplicationDto> getMine(String candidateKeycloakId, Pageable pageable) {
+        return applicationRepository.findByCandidateKeycloakId(candidateKeycloakId, pageable)
+                .map(applicationMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<ApplicationDto> getByJobOfferId(Long jobOfferId, Pageable pageable) {
         return applicationRepository.findByJobOfferId(jobOfferId, pageable)
                 .map(applicationMapper::toDto);
@@ -150,6 +165,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Page<ApplicationDto> getByStatus(ApplicationStatus status, Pageable pageable) {
         return applicationRepository.findByStatus(status, pageable)
                 .map(applicationMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApplicationDashboardCounts getDashboardCounts() {
+        long submitted = applicationRepository.countByStatus(ApplicationStatus.SUBMITTED);
+        long aiReview = applicationRepository.countByStatus(ApplicationStatus.UNDER_AI_REVIEW);
+        return ApplicationDashboardCounts.builder()
+                .total(applicationRepository.count())
+                .pending(submitted + aiReview)
+                .hired(applicationRepository.countByStatus(ApplicationStatus.HIRED))
+                .rejected(applicationRepository.countByStatus(ApplicationStatus.REJECTED))
+                .build();
     }
 
     @Override

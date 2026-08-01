@@ -6,9 +6,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import recruitment.dev.applicationservice.dto.ApplicationDto;
+import recruitment.dev.applicationservice.dto.ApplicationDashboardCounts;
 import recruitment.dev.applicationservice.dto.CreateApplicationRequest;
 import recruitment.dev.applicationservice.entities.ApplicationStatus;
 import recruitment.dev.applicationservice.service.ApplicationService;
@@ -21,9 +24,14 @@ public class ApplicationController {
     private final ApplicationService applicationService;
     @PreAuthorize("hasRole('CANDIDATE')")
     @PostMapping("/create")
-    public ResponseEntity<ApplicationDto> create(@Valid @RequestBody CreateApplicationRequest dto) {
-        ApplicationDto created = applicationService.create(dto);
+    public ResponseEntity<ApplicationDto> create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody CreateApplicationRequest dto) {
+        ApplicationDto created = applicationService.create(dto, jwt.getSubject());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @GetMapping("/mine")
+    public ResponseEntity<Page<ApplicationDto>> getMine(@AuthenticationPrincipal Jwt jwt, Pageable pageable) {
+        return ResponseEntity.ok(applicationService.getMine(jwt.getSubject(), pageable));
     }
     @PreAuthorize("hasRole('CANDIDATE')")
 
@@ -77,6 +85,12 @@ public class ApplicationController {
     public ResponseEntity<Page<ApplicationDto>> getByStatus(
             @PathVariable ApplicationStatus status, Pageable pageable) {
         return ResponseEntity.ok(applicationService.getByStatus(status, pageable));
+    }
+
+    @PreAuthorize("hasRole('HR')")
+    @GetMapping("/dashboard-counts")
+    public ResponseEntity<ApplicationDashboardCounts> getDashboardCounts() {
+        return ResponseEntity.ok(applicationService.getDashboardCounts());
     }
     @PreAuthorize("hasRole('HR')")
 

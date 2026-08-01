@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import recruitment.dev.applicationservice.dto.ApplicationDto;
+import recruitment.dev.applicationservice.dto.ApplicationDashboardCounts;
 import recruitment.dev.applicationservice.dto.CreateApplicationRequest;
 import recruitment.dev.applicationservice.entities.Application;
 import recruitment.dev.applicationservice.entities.ApplicationStatus;
@@ -39,11 +40,12 @@ class ApplicationServiceImplTest {
         when(applicationRepository.save(any(Application.class))).thenReturn(saved);
         when(applicationMapper.toDto(saved)).thenReturn(expected);
 
-        assertThat(service.create(request)).isSameAs(expected);
+        assertThat(service.create(request, "candidate-keycloak-id")).isSameAs(expected);
 
         ArgumentCaptor<Application> application = ArgumentCaptor.forClass(Application.class);
         verify(applicationRepository).save(application.capture());
         assertThat(application.getValue().getCandidateId()).isEqualTo(3L);
+        assertThat(application.getValue().getCandidateKeycloakId()).isEqualTo("candidate-keycloak-id");
         assertThat(application.getValue().getJobOfferId()).isEqualTo(9L);
         assertThat(application.getValue().getStatus()).isEqualTo(ApplicationStatus.CV_REVISION_REQUIRED);
         assertThat(application.getValue().getCurrentStep()).isEqualTo(ApplicationStep.CREATED);
@@ -119,5 +121,21 @@ class ApplicationServiceImplTest {
 
         assertThatThrownBy(() -> service.getById(91L)).isInstanceOf(ApplicationNotFoundException.class);
         assertThatThrownBy(() -> service.delete(91L)).isInstanceOf(ApplicationNotFoundException.class);
+    }
+
+    @Test
+    void aggregatesDashboardCountsFromRepositoryStatuses() {
+        when(applicationRepository.count()).thenReturn(18L);
+        when(applicationRepository.countByStatus(ApplicationStatus.SUBMITTED)).thenReturn(4L);
+        when(applicationRepository.countByStatus(ApplicationStatus.UNDER_AI_REVIEW)).thenReturn(3L);
+        when(applicationRepository.countByStatus(ApplicationStatus.HIRED)).thenReturn(5L);
+        when(applicationRepository.countByStatus(ApplicationStatus.REJECTED)).thenReturn(2L);
+
+        ApplicationDashboardCounts counts = service.getDashboardCounts();
+
+        assertThat(counts.getTotal()).isEqualTo(18L);
+        assertThat(counts.getPending()).isEqualTo(7L);
+        assertThat(counts.getHired()).isEqualTo(5L);
+        assertThat(counts.getRejected()).isEqualTo(2L);
     }
 }

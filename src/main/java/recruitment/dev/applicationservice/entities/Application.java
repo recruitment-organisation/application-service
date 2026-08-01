@@ -20,6 +20,10 @@ public class Application {
     private Long id;
 
     private Long candidateId;
+
+    /** Keycloak subject of the candidate who owns this application. */
+    private String candidateKeycloakId;
+
     private Long jobOfferId;
 
     @Enumerated(EnumType.STRING)
