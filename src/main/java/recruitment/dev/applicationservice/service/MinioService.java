@@ -8,7 +8,7 @@ import java.io.InputStream;
 public interface MinioService {
 
 
-    String upload(MultipartFile file);
+    String upload(MultipartFile file, String objectName);
 
 
     void delete(String fileName);

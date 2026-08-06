@@ -35,6 +35,18 @@ public class ApplicationDto {
     private ApplicationStep currentStep;
 
 
+    private String processInstanceId;
+
+
+    private String currentTaskId;
+
+
+    private String currentTaskDefinitionKey;
+
+
+    private String currentTaskName;
+
+
     private Double matchingScore;
 
 

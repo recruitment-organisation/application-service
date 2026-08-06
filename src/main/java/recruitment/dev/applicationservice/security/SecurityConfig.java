@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
@@ -28,6 +29,15 @@ public class SecurityConfig {
     }
 
     @Bean
+    public WebSecurityCustomizer workflowConsumedEndpointsCustomizer() {
+        return web -> web.ignoring().requestMatchers(request -> {
+            String path = request.getRequestURI();
+            return HttpMethod.GET.matches(request.getMethod()) && path.startsWith("/validation/cv/")
+                    || HttpMethod.PUT.matches(request.getMethod()) && path.startsWith("/internal/");
+        });
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .cors(cors -> cors.disable())
@@ -35,6 +45,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(ar -> ar
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/validation/cv/**").permitAll()
                         .requestMatchers(HttpMethod.GET ,"/internal/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH ,"/internal/**").permitAll()
                         .requestMatchers(HttpMethod.PUT ,"/internal/**").permitAll()

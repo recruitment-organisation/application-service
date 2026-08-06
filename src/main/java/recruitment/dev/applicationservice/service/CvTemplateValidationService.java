@@ -45,6 +45,13 @@ public class CvTemplateValidationService {
 
         String text = extractText(cv);
 
+        if (text == null) {
+            return CvTemplateValidationResult.builder()
+                    .valid(false)
+                    .missingSections(List.of("UNREADABLE_PDF"))
+                    .build();
+        }
+
         String normalizedText = normalize(text);
 
         List<String> missingSections = new ArrayList<>();
@@ -117,11 +124,7 @@ public class CvTemplateValidationService {
             return new PDFTextStripper().getText(document);
 
         } catch (Exception exception) {
-
-            throw new RuntimeException(
-                    "Unable to extract text from CV",
-                    exception
-            );
+            return null;
         }
     }
 

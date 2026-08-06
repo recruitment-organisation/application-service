@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 
@@ -26,20 +25,14 @@ public class MinioServiceImpl implements MinioService {
 
 
     @Override
-    public String upload(MultipartFile file) {
+    public String upload(MultipartFile file, String objectName) {
 
         try {
-
-            String fileName =
-                    UUID.randomUUID()
-                            + "-"
-                            + file.getOriginalFilename();
-
 
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
-                            .object(fileName)
+                            .object(objectName)
                             .stream(
                                     file.getInputStream(),
                                     file.getSize(),
@@ -52,7 +45,7 @@ public class MinioServiceImpl implements MinioService {
             );
 
 
-            return fileName;
+            return objectName;
 
 
         } catch (Exception e) {

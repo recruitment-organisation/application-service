@@ -38,10 +38,11 @@ public class ApplicationController {
 
     @PostMapping("/{id}/submit")
     public ResponseEntity<ApplicationDto> submit(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt) {
 
         return ResponseEntity.ok(
-                applicationService.submit(id)
+                applicationService.submit(id, jwt.getSubject())
         );
     }
     @PreAuthorize("hasRole('CANDIDATE')")
@@ -49,46 +50,47 @@ public class ApplicationController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<ApplicationDto> update(
             @PathVariable Long id,
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody ApplicationDto dto) {
-        return ResponseEntity.ok(applicationService.update(id, dto));
+        return ResponseEntity.ok(applicationService.updateForCandidate(id, dto, jwt.getSubject()));
     }
-    @PreAuthorize("hasRole('HR')")
 
+    @PreAuthorize("hasRole('HR')")
+    @PatchMapping("/{id}/hr-interview-scheduled")
+    public ResponseEntity<ApplicationDto> markHrInterviewScheduled(@PathVariable Long id) {
+        return ResponseEntity.ok(applicationService.markHrInterviewScheduled(id));
+    }
     @GetMapping("/get/{id}")
+    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
     public ResponseEntity<ApplicationDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(applicationService.getById(id));
     }
-    @PreAuthorize("hasRole('HR')")
-
-
     @GetMapping("/getall")
+    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
     public ResponseEntity<Page<ApplicationDto>> getAll(Pageable pageable) {
         return ResponseEntity.ok(applicationService.getAll(pageable));
     }
-    @PreAuthorize("hasRole('HR')")
-
     @GetMapping("/getbycandidate/{candidateId}")
+    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
     public ResponseEntity<Page<ApplicationDto>> getByCandidateId(
             @PathVariable Long candidateId, Pageable pageable) {
         return ResponseEntity.ok(applicationService.getByCandidateId(candidateId, pageable));
     }
-    @PreAuthorize("hasRole('HR')")
-
     @GetMapping("/getby-job-offer/{jobOfferId}")
+    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
     public ResponseEntity<Page<ApplicationDto>> getByJobOfferId(
             @PathVariable Long jobOfferId, Pageable pageable) {
         return ResponseEntity.ok(applicationService.getByJobOfferId(jobOfferId, pageable));
     }
-    @PreAuthorize("hasRole('HR')")
-
     @GetMapping("/get-by-status/{status}")
+    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
     public ResponseEntity<Page<ApplicationDto>> getByStatus(
             @PathVariable ApplicationStatus status, Pageable pageable) {
         return ResponseEntity.ok(applicationService.getByStatus(status, pageable));
     }
 
-    @PreAuthorize("hasRole('HR')")
     @GetMapping("/dashboard-counts")
+    @PreAuthorize("hasAnyRole('HR', 'MANAGER')")
     public ResponseEntity<ApplicationDashboardCounts> getDashboardCounts() {
         return ResponseEntity.ok(applicationService.getDashboardCounts());
     }

@@ -11,8 +11,10 @@ public interface ApplicationService {
     @Deprecated
     ApplicationDto create(CreateApplicationRequest dto);
     ApplicationDto create(CreateApplicationRequest dto, String candidateKeycloakId);
-    ApplicationDto submit(Long id);
+    ApplicationDto submit(Long id, String candidateKeycloakId);
     ApplicationDto update(Long id, ApplicationDto dto);
+    ApplicationDto markHrInterviewScheduled(Long id);
+    ApplicationDto updateForCandidate(Long id, ApplicationDto dto, String candidateKeycloakId);
     ApplicationDto getById(Long id);
     Page<ApplicationDto> getAll(Pageable pageable);
     Page<ApplicationDto> getByCandidateId(Long candidateId, Pageable pageable);
@@ -24,4 +26,11 @@ public interface ApplicationService {
     void delete(Long id);
     ApplicationDto updateMatchingScore(Long id, Double matchingScore);
     ApplicationDto updateStatus(Long id, String status);
+    ApplicationDto updateWorkflowState(
+            Long id,
+            String processInstanceId,
+            String currentTaskId,
+            String currentTaskDefinitionKey,
+            String currentTaskName
+    );
 }

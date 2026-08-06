@@ -9,7 +9,7 @@ import recruitment.dev.applicationservice.dto.CVDto;
 public interface CVService {
 
 
-    CVDto upload(Long candidateId, MultipartFile file);
+    CVDto upload(Long applicationId, MultipartFile file, String candidateKeycloakId);
 
 
 

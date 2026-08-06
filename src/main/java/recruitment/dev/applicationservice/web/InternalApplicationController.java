@@ -1,6 +1,5 @@
 package recruitment.dev.applicationservice.web;
 
-import jakarta.ws.rs.PATCH;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import recruitment.dev.applicationservice.dto.ApplicationDto;
 import recruitment.dev.applicationservice.dto.CVDto;
 import recruitment.dev.applicationservice.dto.UpdateMatchingScoreRequest;
+import recruitment.dev.applicationservice.dto.UpdateWorkflowStateRequest;
 import recruitment.dev.applicationservice.service.ApplicationService;
 import recruitment.dev.applicationservice.service.CVService;
 
@@ -72,8 +72,22 @@ public class InternalApplicationController {
         );
     }
 
+    @PutMapping("/applications/{applicationId}/workflow-state")
+    public ResponseEntity<ApplicationDto> updateWorkflowState(
+            @PathVariable Long applicationId,
+            @Valid @RequestBody UpdateWorkflowStateRequest request
+    ) {
+        return ResponseEntity.ok(applicationService.updateWorkflowState(
+                applicationId,
+                request.getProcessInstanceId(),
+                request.getCurrentTaskId(),
+                request.getCurrentTaskDefinitionKey(),
+                request.getCurrentTaskName()
+        ));
+    }
 
-    @PatchMapping("/update-status/{id}")
+
+    @PutMapping("/update-status/{id}")
     public ResponseEntity<ApplicationDto> updateStatus(
             @PathVariable Long id,
             @RequestBody String status) {

@@ -9,6 +9,10 @@ spring:
     password: ${APP_DB_PASSWORD:admin123}
     driver-class-name: org.postgresql.Driver
 
+  sql:
+    init:
+      mode: always
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -32,6 +36,12 @@ spring:
         jwt:
           jwk-set-uri: ${KEYCLOAK_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:micro-service}/protocol/openid-connect/certs
           issuer-uri: ${KEYCLOAK_SERVER_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:micro-service}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
   servlet:
     multipart:
@@ -60,4 +70,6 @@ eureka:
   instance:
     prefer-ip-address: true
 
-
+outbox:
+  publisher:
+    fixed-delay-ms: ${OUTBOX_PUBLISHER_DELAY_MS:1000}

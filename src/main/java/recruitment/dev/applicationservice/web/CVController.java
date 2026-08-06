@@ -5,6 +5,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,10 +25,11 @@ public class CVController {
     @PostMapping("/applications/{applicationId}/cv")
     public ResponseEntity<CVDto> uploadCV(
             @PathVariable Long applicationId,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam MultipartFile file) {
 
         return ResponseEntity.ok(
-                cvService.upload(applicationId,file)
+                cvService.upload(applicationId, file, jwt.getSubject())
         );
     }
 
@@ -41,10 +44,11 @@ public class CVController {
     @PreAuthorize("hasRole('HR')")
     @GetMapping("/download/{id}")
     public ResponseEntity<Resource> downloadCV(@PathVariable Long id) {
+        CVDto cv = cvService.findById(id);
         Resource file = cvService.download(id);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"cv.pdf\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + cv.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(cv.getFileType()))
                 .body(file);
     }
 
