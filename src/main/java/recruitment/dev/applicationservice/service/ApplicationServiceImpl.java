@@ -93,7 +93,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public ApplicationDto submit(Long id, String candidateKeycloakId) {
+    public ApplicationDto submit(Long id, String candidateKeycloakId, String accessToken) {
 
         Application application = getOwnedApplication(id, candidateKeycloakId);
 
@@ -111,6 +111,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
 
         WorkflowStartResponse workflow = workflowClient.startRecruitment(
+                "Bearer " + accessToken,
                 new WorkflowStartRequest(
                         application.getId(),
                         application.getCandidateId(),

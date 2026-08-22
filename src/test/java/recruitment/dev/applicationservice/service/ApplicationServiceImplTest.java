@@ -89,12 +89,12 @@ class ApplicationServiceImplTest {
         when(applicationRepository.save(application)).thenReturn(application);
         when(applicationMapper.toDto(application)).thenReturn(expected);
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
-        when(workflowClient.startRecruitment(any())).thenReturn(new WorkflowStartResponse(
+        when(workflowClient.startRecruitment(eq("Bearer candidate-access-token"), any())).thenReturn(new WorkflowStartResponse(
                 "process-5", "recruitment:1:5", "5", "SUBMITTED",
                 "task-5", "applicationSubmitted", "Application Submitted"
         ));
 
-        assertThat(service.submit(5L, "candidate-keycloak-id")).isSameAs(expected);
+        assertThat(service.submit(5L, "candidate-keycloak-id", "candidate-access-token")).isSameAs(expected);
         assertThat(application.getStatus()).isEqualTo(ApplicationStatus.SUBMITTED);
         assertThat(application.getCurrentStep()).isEqualTo(ApplicationStep.COMPLETED);
         assertThat(application.getProcessInstanceId()).isEqualTo("process-5");
@@ -109,7 +109,7 @@ class ApplicationServiceImplTest {
         application.setCandidateKeycloakId("candidate-keycloak-id");
         when(applicationRepository.findById(5L)).thenReturn(Optional.of(application));
 
-        assertThatThrownBy(() -> service.submit(5L, "candidate-keycloak-id"))
+        assertThatThrownBy(() -> service.submit(5L, "candidate-keycloak-id", "candidate-access-token"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("CV must be uploaded before submit");
         verify(applicationRepository, never()).save(any());

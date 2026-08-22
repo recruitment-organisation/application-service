@@ -42,7 +42,7 @@ public class ApplicationController {
             @AuthenticationPrincipal Jwt jwt) {
 
         return ResponseEntity.ok(
-                applicationService.submit(id, jwt.getSubject())
+                applicationService.submit(id, jwt.getSubject(), jwt.getTokenValue())
         );
     }
     @PreAuthorize("hasRole('CANDIDATE')")

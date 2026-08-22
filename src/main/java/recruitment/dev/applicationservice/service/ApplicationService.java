@@ -11,7 +11,7 @@ public interface ApplicationService {
     @Deprecated
     ApplicationDto create(CreateApplicationRequest dto);
     ApplicationDto create(CreateApplicationRequest dto, String candidateKeycloakId);
-    ApplicationDto submit(Long id, String candidateKeycloakId);
+    ApplicationDto submit(Long id, String candidateKeycloakId, String accessToken);
     ApplicationDto update(Long id, ApplicationDto dto);
     ApplicationDto markHrInterviewScheduled(Long id);
     ApplicationDto updateForCandidate(Long id, ApplicationDto dto, String candidateKeycloakId);
