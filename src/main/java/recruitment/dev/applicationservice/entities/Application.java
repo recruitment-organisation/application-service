@@ -33,6 +33,9 @@ public class Application {
 
     private Long jobOfferId;
 
+    @Column(name = "company_id")
+    private Long companyId;
+
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;
 

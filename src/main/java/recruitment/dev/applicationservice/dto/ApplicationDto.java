@@ -24,6 +24,7 @@ public class ApplicationDto {
 
 
     private Long jobOfferId;
+    private Long companyId;
 
 
     private Long cvId;

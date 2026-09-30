@@ -18,4 +18,10 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     boolean existsByCandidateIdAndJobOfferId(Long candidateId, Long jobOfferId);
 
     long countByStatus(ApplicationStatus status);
+    Page<Application> findByCompanyId(Long companyId, Pageable pageable);
+    Page<Application> findByCompanyIdAndCandidateId(Long companyId, Long candidateId, Pageable pageable);
+    Page<Application> findByCompanyIdAndJobOfferId(Long companyId, Long jobOfferId, Pageable pageable);
+    Page<Application> findByCompanyIdAndStatus(Long companyId, ApplicationStatus status, Pageable pageable);
+    long countByCompanyId(Long companyId);
+    long countByCompanyIdAndStatus(Long companyId, ApplicationStatus status);
 }

@@ -52,6 +52,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public ApplicationDto create(CreateApplicationRequest dto, String candidateKeycloakId) {
+        return create(dto, candidateKeycloakId, null);
+    }
+
+    @Override
+    public ApplicationDto create(CreateApplicationRequest dto, String candidateKeycloakId, Long companyId) {
 
         if(applicationRepository.existsByCandidateIdAndJobOfferId(
                 dto.getCandidateId(),
@@ -70,6 +75,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         entity.setCandidateKeycloakId(candidateKeycloakId);
 
         entity.setJobOfferId(dto.getJobOfferId());
+        entity.setCompanyId(companyId);
 
 
         entity.setStatus(ApplicationStatus.CV_REVISION_REQUIRED);
@@ -214,12 +220,18 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .map(applicationMapper::toDto);
     }
 
+    @Override @Transactional(readOnly = true)
+    public Page<ApplicationDto> getAll(Long companyId, Pageable pageable) { return applicationRepository.findByCompanyId(companyId, pageable).map(applicationMapper::toDto); }
+
     @Override
     @Transactional(readOnly = true)
     public Page<ApplicationDto> getByCandidateId(Long candidateId, Pageable pageable) {
         return applicationRepository.findByCandidateId(candidateId, pageable)
                 .map(applicationMapper::toDto);
     }
+
+    @Override @Transactional(readOnly = true)
+    public Page<ApplicationDto> getByCandidateId(Long companyId, Long candidateId, Pageable pageable) { return applicationRepository.findByCompanyIdAndCandidateId(companyId, candidateId, pageable).map(applicationMapper::toDto); }
 
     @Override
     @Transactional(readOnly = true)
@@ -235,12 +247,18 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .map(applicationMapper::toDto);
     }
 
+    @Override @Transactional(readOnly = true)
+    public Page<ApplicationDto> getByJobOfferId(Long companyId, Long jobOfferId, Pageable pageable) { return applicationRepository.findByCompanyIdAndJobOfferId(companyId, jobOfferId, pageable).map(applicationMapper::toDto); }
+
     @Override
     @Transactional(readOnly = true)
     public Page<ApplicationDto> getByStatus(ApplicationStatus status, Pageable pageable) {
         return applicationRepository.findByStatus(status, pageable)
                 .map(applicationMapper::toDto);
     }
+
+    @Override @Transactional(readOnly = true)
+    public Page<ApplicationDto> getByStatus(Long companyId, ApplicationStatus status, Pageable pageable) { return applicationRepository.findByCompanyIdAndStatus(companyId, status, pageable).map(applicationMapper::toDto); }
 
     @Override
     @Transactional(readOnly = true)
@@ -253,6 +271,15 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .hired(applicationRepository.countByStatus(ApplicationStatus.HIRED))
                 .rejected(applicationRepository.countByStatus(ApplicationStatus.REJECTED))
                 .build();
+    }
+
+    @Override @Transactional(readOnly = true)
+    public ApplicationDashboardCounts getDashboardCounts(Long companyId) {
+        long submitted = applicationRepository.countByCompanyIdAndStatus(companyId, ApplicationStatus.SUBMITTED);
+        long aiReview = applicationRepository.countByCompanyIdAndStatus(companyId, ApplicationStatus.UNDER_AI_REVIEW);
+        return ApplicationDashboardCounts.builder().total(applicationRepository.countByCompanyId(companyId)).pending(submitted + aiReview)
+                .hired(applicationRepository.countByCompanyIdAndStatus(companyId, ApplicationStatus.HIRED))
+                .rejected(applicationRepository.countByCompanyIdAndStatus(companyId, ApplicationStatus.REJECTED)).build();
     }
 
     @Override
